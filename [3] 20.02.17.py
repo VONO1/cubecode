@@ -8,7 +8,7 @@ def superfunction():
     nmin = i  # номер минимального элемента
     min = a[nmin]  # собственно минимальный элемент
     while (i < len(a)):
-        if (a[i] <= min):
+        if (a[i] < min):
             nmin = i
             min = a[nmin]
 
