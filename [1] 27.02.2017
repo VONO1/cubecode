@@ -4,6 +4,9 @@ def DD():
     next = datetime.now().year + 1
     datetime = datetime(next,1,1)
     x = datetime - now
-    print("дней до нового года", x)
+    return x.days
+
+    #print("дней до нового года", x)
 
 DD()
+print(DD())
