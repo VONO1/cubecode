@@ -5,7 +5,7 @@
 #массив содержащий события
 tasks = []
 
-#какие свойства должны быть у события (что бы можно было их добавить/ изменить / удалить без правки остального кода)
+#какие свойства должны быть у события
 info = ["id", "name", "txt", "time", "status"]
 
 #===============================================================================================================
@@ -43,15 +43,18 @@ def ADD_F():
 
             else: task["status"] = "good"
     else:
-        print(task)
         tasks.append(task)
-        print(tasks)
         MENUS("start")
 
 #функция вывода задач на экран
 def OTOBR():
     for o in tasks:
-        print(o)
+        s = ""
+        if o["status"] == "bad":
+            s = "Активно"
+        else: s = "Не активно"
+        print("id задания: {} \n Имя задания: {} \n Дата задания {} \n Статус задания {} \n Что нужно сделать {}".format(o["id"], o["name"], o["time"], s, o['txt']))
+
     else:
         MENUS("start")
 
@@ -77,41 +80,26 @@ def MENUS(levels):
 
 # Функция удаления задания
 def DEL_F():
-    vib = int(input("введите id события для удаления"))
-    for v in tasks:
-        if vib == v["id"]:
-            tasks.pop(v["id"] - 1)
-            print("Задание удалено")
-            MENUS("start")
-            break
-    else:
-        print("нет такого задания, пожалуйста повторите")
-        MENUS("start")
+    i = S_F()
+    tasks.pop(i["id"] - 1)
+    print("Задание удалено")
+    MENUS("start")
+
 
 # Функция отмены задания
 def OTM_F():
-    vib = int(input("введите id события для отмены"))
-    for v in tasks:
-        if vib == v["id"]:
-            v["status"] = "bad"
-            print("Задание отменено")
-            MENUS("start")
-            break
-    else:
-        print("нет такого задания, пожалуйста повторите")
-        MENUS("start")
+    i = S_F()
+    i["status"] = "bad"
+    print("Задание отменено")
+    MENUS("start")
+
 # функция возобновления задания
 def NEW_F():
-    vib = int(input("введите id события для возобновления"))
-    for v in tasks:
-        if vib == v["id"]:
-            v["status"] = "good"
-            print("Задание возобновлено")
-            MENUS("start")
-            break
-    else:
-        print("нет такого задания, пожалуйста повторите")
-        MENUS("start")
+    i = S_F()
+    i["status"] = "good"
+    print("Задание возобновлено")
+    MENUS("start")
+
 # Функция выхода
 def EX_F():
     sys.exit()
@@ -119,21 +107,22 @@ def EX_F():
 # Функция редактирования
 def ED_F(property):
     i = S_F()
-    print(i[property])
-
-
+    n = input("введите новое значение")
+    i[property] = n
+    print("Значение изменено")
+    MENUS("start")
 # Меню программы. Сделано что бы можно было добавлять дополнительные меню без дополнительного кода
 menu_ = {"start": [
-    {"Nu": 1, "Name": "Вывести список задач", "fun":OTOBR},
+    {"Nu": 1, "Name": "Вывести список задач", "fun":OTOBR ,"Arg":None},
     {"Nu": 2, "Name": "Добавить задачу", "fun": ADD_F ,"Arg":None},
-    {"Nu": 3, "Name": "Отредактировать задачу", "fun":MENUS, "Arg":"edit"},
-    {"Nu": 4, "Name": "Удалить задачу", "fun":DEL_F},
-    {"Nu": 5, "Name": "Отменить задание", "fun":OTM_F},
-    {"Nu": 6, "Name": "Возобновить задание", "fun":NEW_F},
-    {"Nu": 7, "Name": "Выход из программы", "fun":MENUS, "Arg":"exit"}
+    {"Nu": 3, "Name": "Отредактировать задачу", "fun":MENUS, "Arg":"edit" },
+    {"Nu": 4, "Name": "Удалить задачу", "fun":DEL_F ,"Arg":None},
+    {"Nu": 5, "Name": "Отменить задание", "fun":OTM_F ,"Arg":None} ,
+    {"Nu": 6, "Name": "Возобновить задание", "fun":NEW_F ,"Arg":None},
+    {"Nu": 7, "Name": "Выход из программы", "fun":MENUS, "Arg":"exit" }
     ],
         "exit": [
-    {"Nu": 1, "Name": "да. мусор а не программа", "fun": EX_F},
+    {"Nu": 1, "Name": "да. мусор а не программа", "fun": EX_F,"Arg":None},
     {"Nu": 2, "Name": "нет. создам ещё пару задач", "fun":MENUS, "Arg":"start"}
     ],
         "edit": [
