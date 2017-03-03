@@ -22,14 +22,14 @@ def S_F():
         print("нет такого задания, пожалуйста повторите")
         MENUS("start")
 #Функция проверки информации
-def PROV_F(ob,tip):
-    if tip != dt:
-        if ob = tip:
-            return(True)
-        else:
-            return(False)
-    else:
-        ob.split(".")
+# def PROV_F(ob,tip):
+#     if tip != dt:
+#         if ob = tip:
+#             return(True)
+#         else:
+#             return(False)
+#     else:
+#         ob.split(".")
 
 #функция добавления информации
 def ADD_F():
