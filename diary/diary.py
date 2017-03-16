@@ -1,6 +1,10 @@
 
 import sys
+from SQLL import storage
 
+# Подключение к базе
+conn = storage.connect('tasks.db')
+storage.initialize(conn)
 
 #массив содержащий события
 tasks = []
@@ -53,6 +57,9 @@ def ADD_F():
             else: task["status"] = "good"
     else:
         tasks.append(task)
+        #записываем в БД
+        print(task)
+        storage.add_task(conn,task['name'],task['time'],task['txt'])
         MENUS("start")
 
 #функция вывода задач на экран
