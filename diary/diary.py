@@ -1,6 +1,10 @@
 
 import sys
+from SQLL import storage
 
+# Подключение к базе
+conn = storage.connect('tasks.db')
+storage.initialize(conn)
 
 #массив содержащий события
 tasks = []
@@ -50,23 +54,34 @@ def ADD_F():
             if n == "id":
                 task["id"] =  len(tasks)+1
 
-            else: task["status"] = "good"
+            else: task["status"] = "Не выполнено"
     else:
         tasks.append(task)
+        #записываем в БД
+        print(task)
+        storage.add_task(conn,task['name'],task['time'],task['txt'])
         MENUS("start")
 
 #функция вывода задач на экран
 def OTOBR():
-    for o in tasks:
-        s = ""
-        if o["status"] == "bad":
-            s = "Активно"
-        else: s = "Не активно"
-        print("id задания: {} \n Имя задания: {} \n Дата задания {} \n Статус задания {} \n Что нужно сделать {}".format(o["id"], o["name"], o["time"], s, o['txt']))
-
+    #Старая не SQL версия
+    # for o in tasks:
+    #     s = ""
+    #     if o["status"] == "bad":
+    #         s = "Активно"
+    #     else: s = "Не активно"
+    #     print("id задания: {} \n Имя задания: {} \n Дата задания {} \n Статус задания {} \n Что нужно сделать {}".format(o["id"], o["name"], o["time"], s, o['txt']))
+    #
+    # else:
+    #     MENUS("start")
+    all_tasks = storage.all_tasks(conn)
+    for task in all_tasks:
+        print('{:*^101}'.format(' id: {task[id]} '.format(task=task)),\
+              '\nНазвание задачи: {task[task_name]} Дата: {task[task_date]} Статус: {task[status]}'.format(task=task),\
+              '\n{:=^101}'.format(' Текст задачи '), '\n{task[text]}'.format(task=task), \
+              '\n{:=^101}\n'.format(' Текст задачи '))
     else:
         MENUS("start")
-
 
 #функция отображающая меню на экране
 def MENUS(levels):
@@ -97,27 +112,38 @@ def DEL_F():
 
 # Функция отмены задания
 def OTM_F():
-    i = S_F()
-    i["status"] = "bad"
-    print("Задание отменено")
+    # i = S_F()
+    # i["status"] = "Выполнено"
+    # print("Задание отменено")
+    nom = input('id: ')
+    storage.close_task(conn, nom)
     MENUS("start")
 
 # функция возобновления задания
 def NEW_F():
-    i = S_F()
-    i["status"] = "good"
-    print("Задание возобновлено")
+    nom = input('id: ')
+    storage.re_task(conn, nom)
     MENUS("start")
-
 # Функция выхода
 def EX_F():
     sys.exit()
 
 # Функция редактирования
 def ED_F(property):
-    i = S_F()
-    n = input("введите новое значение")
-    i[property] = n
+    idx = input('\nid задачи: ')
+    task = storage.find_by_id(conn, idx)
+    print('Название: {task[task_name]}; Дата: {task[task_date]}; Текст: {task[text]}'.format(task=task))
+    task_name = input('\nНовое название задачи:')
+    task_date = input('\nНовая дата выполнения:')
+    text = input('Новый текст задачи:\n')
+    #storage.update_task(conn, task['name'], task['time'], task['txt'], task['id'])
+
+    storage.update_task(conn, task_name, task_date, text, idx)
+
+    # i = S_F()
+    # n = input("введите новое значение")
+    # i[property] = n
+    # storage.update_task(conn, i['name'], i['time'], i['txt'], i[id])
     print("Значение изменено")
     MENUS("start")
 # Меню программы. Сделано что бы можно было добавлять дополнительные меню без дополнительного кода
