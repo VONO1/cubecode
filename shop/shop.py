@@ -52,10 +52,9 @@ db.generate_mapping(create_tables=True)
 
 
 with db_session:
-    customer = Customer(username = 'aa@rr,ru',
-                        password = 'sdsad111',
-                        activated = True,
-                        orders = Set('Order')
+    customer = Customer(username='aa@rr,ru',
+                        password='sdsad111',
+                        activated=True
                         )
 
     order = Order(customer=customer)
