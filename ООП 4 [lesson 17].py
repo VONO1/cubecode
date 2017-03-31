@@ -36,7 +36,18 @@ class Product(object):
 class Cart(object):
     def __init__(self):
         self.products = []
+        self.__current = None
+    def __iter__(self):
+        return self
 
+    def __next__(self):
+        if self.__current is None:
+            self.__current = 0
+        if self.__current < len(self.products):
+            self.__current = None
+            raise StopIteration
+        self.__current += 1
+        return self.products[self.__current]
 
     def __len__(self):
         return len(self.products)
@@ -63,8 +74,13 @@ book3 = Product('Шаблоны проектирования', 999.13)
 
 cart = Cart()
 cart.add(book)
-cart[0]  = book2
-print('Всего товаров в корзине: {}'.format(len(cart)))
+cart.add(book2)
+cart.add(book3)
+
+for p in cart:
+    print('в корзине: {}'.format(p))
+
+#print('Всего товаров в корзине: {}'.format(len(cart)))
 #
 # class A(object):
 #     pass
@@ -103,4 +119,51 @@ print(float(book))
 # a = 666
 # b = 777
 # del a, b
+
+# перегрузка оператора
+
+class Vector(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        """Перегрузка операторов + """
+        return Vector(self.x + other.x, self.y + other.y)
+
+
+    def lenght(self):
+        return (self.x ** 2 +self.y **2) ** 0.5
+
+
+    def __sub__(self, other):
+        """Перегрузка операторов - """
+        return Vector(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other):
+        """Перегрузка операторов * """
+        return Vector(self.x * other.x, self.y * other.y)
+
+    def __lt__(self, other):
+        """Перегрузка операторов <"""
+        return self.lenght() < other.lenght()
+
+    def __eq__(self, other):
+        """Перегрузка операторов = """
+        return self.lenght() == other.lenght()
+
+    def __repr__(self):
+        return 'V({},{})'.format(self.x, self.y)
+
+
+
+v1 = Vector(1,5)
+v2 = Vector(1,8)
+
+print('сумма векторов v2 и v2 равна: {}'.format(v1 + v2))
+print('разность векторов v2 и v2 равна: {}'.format(v1 - v2))
+print('произведение векторов v2 и v2 равна: {}'.format(v1 * v2))
+
+print('{} < {} : {}'.format(v1,v2, v1 > v2))
+
 
