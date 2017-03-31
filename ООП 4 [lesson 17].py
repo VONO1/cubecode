@@ -34,6 +34,8 @@ class Product(object):
         return self.price
 
 class Cart(object):
+    #обязательные атрибуты
+    __slots__ = ['__current','products']
     def __init__(self):
         self.products = []
         self.__current = None
