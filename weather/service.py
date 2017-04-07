@@ -5,6 +5,8 @@ from os.path import  exists as file_exists
 from time import  sleep
 from urllib.parse import urljoin
 import socket
+import requests
+
 
 import requests
 from lxml import etree
@@ -24,7 +26,7 @@ class Page(object):
     def __call__(self, refresh=False):
         """Вызывается, когда объект используют как функцию"""
         if refresh or self.__response is None:
-            self.__response = requests.get(self.__url, self.__params, self.__kwargs)
+            self.__response = requests.get(self.__url, params=self.__params, **self.__kwargs)
         return self.__response
 
 
@@ -65,30 +67,82 @@ class Finder(object):
     @property
     def tree(self):
         """Дерево веб-документа"""
-         if self.__tree is None:
-             parser = etree.HTMLParser()
-            self.__tree = etree.parse(StringIO(self.__page()), parser)
-         return self.__tree
+        if self.__tree is None:
+            parser = etree.HTMLParser()
+            self.__tree = etree.parse(StringIO(self.__page().text), parser)
+
+        return self.__tree
 
 class WeatherGrabber(object):
     """Граббер и парсер данных с сервиса Яндекс-Погода"""
+    def __init__(self, region_id):
+        self.region_id = region_id
+    def get_weather(self, search):
+        """ Возвращает данные о погоде"""
+        # page = Page('https://yandex.ru/pogoda/saint-petersburg?from=serp_title')
+        # founder = Finder(Page(page))
+        #
+        # founder = Finder(page)
+        # temperature = founder('.current-weather__thermometer.current-weather__thermometer_type_now')
 
+
+        return {
+            'temperature' : None,
+            'comment' : None,
+            'forecast' : None,
+            'wind_speed' : None,
+            'wind_direction' : None,
+            'wet' : None,
+            'pressure':None
+        }
 
 class WeatherService(object):
     """Сервис погоды"""
+    TEMPLATE = """
+    Сейчас : {temperature}, {comment}
+
+    Прогноз на ближайшее время:
+    {forecast}
+    Ветер: {wind_speed} ({wind_direction})
+    Влажность: {wet}
+    Давление: {pressure}
+    """
+    def __init__(self, region_id=225):
+        self._grabber = WeatherGrabber(region_id)
+
 
     def show(self, search):
-        print(search)
+        context = self._grabber.get_weather(search)
+        print(self.TEMPLATE.format(**context))
 
     def listen(self, ip, port):
-        page = Page('https://yandex.ru/pogoda/saint-petersburg?from=serp_title')
-        founder = Finder(Page(page))
-        < div
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            #Setsockopt - Устанавливает опции для сокета, в данном случае сокет будет переиспользовать адрес
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((ip,port))#установили адресс
+            s.listen(1)#прослушивание входящих соединений
 
-        founder = Finder(page)
-        temperature = founder('.current-weather__thermometer.current-weather__thermometer_type_now')
+            while True:
+                #conn - сокет подключившегося клиента, addr - адресцш клиента
+                conn, addr = s.accept()
+                with conn:
+                    search = conn.recv(1024) #чтение данных из сокета, в скобах размер в байтах
+                    search = search.decode('utf-8')
+
+                    if search:
+                        print('[{:%Y-%m-%d %H:%M:%S}] {} искомый город "{}"'.format(datetime.now(), addr, search))
+
+                        try:
+                            context = self._grabber.get_weather(search)
+                            #отправка данных в сокет
+                            conn.send(self.TEMPLATE.format(**context).encode('utf-8'))
+                        except RuntimeError as e:
+                            conn.send('\n{}\n'.format(e).encode('utf-8'))
+
+
+
         # css: class ="current-weather__thermometer current-weather__thermometer_type_now" > +6 °C < / div >
-        print(temperature.text) # у элементов которые возвращают lxml есть сво-во текст
+        #print(temperature.text) # у элементов которые возвращают lxml есть сво-во текст
 
 if __name__ == '__main__':
     service = WeatherService()
